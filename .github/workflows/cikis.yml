@@ -1,0 +1,19 @@
+name: cikis
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *'
+concurrency:
+  group: cikis
+  cancel-in-progress: false
+jobs:
+  tunel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: chisel ile ZekRP'ye bağlan
+        run: |
+          IFS='|' read -r AUTH URL PORT <<< "${{ secrets.ZEKRP_CIKIS }}"
+          curl -fsSL https://i.jpillora.com/chisel! | bash
+          echo "cikis IP: $(curl -s https://api.ipify.org)"
+          exec chisel client --keepalive 25s --max-retry-count -1 --auth "$AUTH" "$URL" "R:127.0.0.1:$PORT:socks"
